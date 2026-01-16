@@ -2,6 +2,7 @@ use axum::{Router, routing::get};
 
 mod data;
 mod lichess;
+mod xlsx;
 
 #[tokio::main]
 async fn main() {
