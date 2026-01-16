@@ -23,7 +23,7 @@ impl Report {
     pub fn filename(&self) -> String {
         format!(
             "Отчет.ТК.ФВиС.{}.{}.xlsx",
-            self.data.student_id,
+            self.data.student.id,
             self.generation_time.format("%Y-%m-%d"),
         )
     }
@@ -62,7 +62,7 @@ impl Report {
             .set_style(Styles::header());
         sheet
             .get_cell_mut("B4")
-            .set_value(&self.data.student_id)
+            .set_value(&self.data.student.id)
             .set_style(Styles::header());
 
         sheet.add_merge_cells("C3:F3");
@@ -73,7 +73,7 @@ impl Report {
             .set_style(Styles::header());
         sheet
             .get_cell_mut("C4")
-            .set_value(&self.data.name)
+            .set_value(&self.data.student.name)
             .set_style(Styles::header());
 
         sheet
@@ -82,7 +82,7 @@ impl Report {
             .set_style(Styles::header());
         sheet
             .get_cell_mut("G4")
-            .set_value(&self.data.group)
+            .set_value(&self.data.student.group)
             .set_style(Styles::header());
 
         sheet.add_merge_cells("H3:J3");
@@ -104,14 +104,14 @@ impl Report {
             .set_style(Styles::header());
         sheet
             .get_cell_mut("K4")
-            .set_value(&self.data.teacher)
+            .set_value(&self.data.subject.teacher)
             .set_style(Styles::header());
     }
 
     fn write_game_info(&self, sheet: &mut Worksheet) {
         let event_info = format!(
             "Шахматный турнир №{} {}",
-            self.data.tournament,
+            self.data.subject.tournament,
             self.generation_time.format("%d.%m.%Y"),
         );
 
@@ -137,8 +137,12 @@ impl Report {
 
         sheet.add_merge_cells("C9:G9");
         sheet.add_merge_cells("C10:G10");
-        sheet.get_cell_mut("C9").set_value(self.data.short_name());
-        sheet.get_cell_mut("C10").set_value(&self.data.opponent);
+        sheet
+            .get_cell_mut("C9")
+            .set_value(self.data.student.short_name());
+        sheet
+            .get_cell_mut("C10")
+            .set_value(&self.data.game.opponent);
 
         sheet.add_merge_cells("H7:M7");
         sheet.add_merge_cells("H8:M8");
@@ -162,8 +166,10 @@ impl Report {
 
         sheet.add_merge_cells("I9:M9");
         sheet.add_merge_cells("I10:M10");
-        sheet.get_cell_mut("I9").set_value(&self.data.opponent);
-        sheet.get_cell_mut("I10").set_value(self.data.short_name());
+        sheet.get_cell_mut("I9").set_value(&self.data.game.opponent);
+        sheet
+            .get_cell_mut("I10")
+            .set_value(self.data.student.short_name());
     }
 
     async fn write_games(&self, sheet: &mut Worksheet) -> anyhow::Result<()> {

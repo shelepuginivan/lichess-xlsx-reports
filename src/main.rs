@@ -29,6 +29,8 @@ macro_rules! serve_static {
 async fn main() {
     let app = Router::new()
         .route("/", get(serve_static!("index.html", "text/html")))
+        .route("/style.css", get(serve_static!("style.css", "text/css")))
+        .route("/app.js", get(serve_static!("app.js", "text/javascript")))
         .route("/api/v1/report", post(generate_report));
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:8000")

@@ -6,18 +6,13 @@ use serde::Deserialize;
 use crate::lichess;
 
 #[derive(Deserialize)]
-pub struct Data {
+pub struct StudentData {
     pub name: String,
-    pub student_id: String,
-    pub teacher: String,
     pub group: String,
-    pub tournament: String,
-    pub opponent: String,
-    pub game_white_url: String,
-    pub game_black_url: String,
+    pub id: String,
 }
 
-impl Data {
+impl StudentData {
     pub fn short_name(&self) -> String {
         let mut parts: Vec<&str> = self.name.split(" ").collect();
 
@@ -27,13 +22,35 @@ impl Data {
 
         parts.join(" ")
     }
+}
 
+#[derive(Deserialize)]
+pub struct SubjectData {
+    pub teacher: String,
+    pub tournament: String,
+}
+
+#[derive(Deserialize)]
+pub struct GameData {
+    pub opponent: String,
+    pub white_url: String,
+    pub black_url: String,
+}
+
+#[derive(Deserialize)]
+pub struct Data {
+    pub student: StudentData,
+    pub subject: SubjectData,
+    pub game: GameData,
+}
+
+impl Data {
     pub async fn load_game_as_white(&self) -> anyhow::Result<PgnInfo> {
-        self.load_game(&self.game_white_url).await
+        self.load_game(&self.game.white_url).await
     }
 
     pub async fn load_game_as_black(&self) -> anyhow::Result<PgnInfo> {
-        self.load_game(&self.game_black_url).await
+        self.load_game(&self.game.black_url).await
     }
 
     async fn load_game(&self, game_url: &str) -> anyhow::Result<PgnInfo> {
