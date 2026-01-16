@@ -8,5 +8,89 @@
     <title>Генератор отчетов по шахматам</title>
 </head>
 <body>
-    <h1>hi~</h1>
+    <div class="wrapper">
+        <header>
+            <h1>Lorem Ipsum</h1>
+        </header>
+        <main>
+            <form id="game-info-form">
+                <fieldset>
+                    <legend>Студент</legend>
+                    <label>
+                        Ваше ФИО
+                        <input
+                            id="game-info-input-name"
+                            type="text"
+                            placeholder="Иванов Иван Иванович"
+                        >
+                    </label>
+                    <label>
+                        Группа
+                        <input
+                            id="game-info-group"
+                            type="text"
+                            placeholder="1234"
+                        >
+                    </label>
+                    <label>
+                        Номер студ. билета
+                        <input
+                            id="game-info-student-id"
+                            type="text"
+                            placeholder="123456"
+                        >
+                    </label>
+                </fieldset>
+                <fieldset>
+                    <legend>Дисциплина</legend>
+                    <label>
+                        Турнир
+                        <input
+                            id="game-info-tournament"
+                            type="text"
+                            placeholder="Мужской турнир по шахматам №1"
+                        >
+                    </label>
+                    <label>
+                        Преподаватель
+                        <input
+                            id="game-info-teacher"
+                            type="text"
+                            placeholder="Иванов С.В."
+                        >
+                    </label>
+                </fieldset>
+                <fieldset>
+                    <legend>Игра</legend>
+                    <label>
+                        Соперник
+                        <input
+                            id="game-info-opponent"
+                            type="text"
+                            placeholder="Петров Петр Петрович"
+                        >
+                    </label>
+                    <label>
+                        Ссылка на игру белыми
+                        <input
+                            id="game-info-game-white"
+                            type="text"
+                            placeholder="https://lichess.org/ab12cdef"
+                        >
+                    </label>
+                    <label>
+                        Ссылка на игру черными
+                        <input
+                            id="game-info-game-black"
+                            type="text"
+                            placeholder="https://lichess.org/zy98xwvu"
+                        >
+                    </label>
+                </fieldset>
+                <button>Сгенерировать отчет</button>
+            </form>
+        </main>
+        <footer>
+        </footer>
+    </div>
 </body>
