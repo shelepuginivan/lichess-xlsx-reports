@@ -1,6 +1,7 @@
 use axum::{Router, routing::get};
 
 mod data;
+mod lichess;
 
 #[tokio::main]
 async fn main() {
