@@ -17,6 +17,16 @@ pub struct Data {
 }
 
 impl Data {
+    pub fn short_name(&self) -> String {
+        let mut parts: Vec<&str> = self.name.split(" ").collect();
+
+        if parts.len() >= 3 {
+            parts.pop();
+        }
+
+        parts.join(" ")
+    }
+
     pub async fn load_game_as_white(&self) -> anyhow::Result<PgnInfo> {
         self.load_game(&self.game_white_url).await
     }
