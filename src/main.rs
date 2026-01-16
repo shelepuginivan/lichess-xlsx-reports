@@ -1,4 +1,7 @@
-use axum::{Json, Router, routing::post};
+use axum::{
+    Json, Router,
+    routing::{get, post},
+};
 use reqwest::StatusCode;
 
 use crate::{
@@ -10,9 +13,23 @@ mod data;
 mod lichess;
 mod xlsx;
 
+macro_rules! serve_static {
+    ($path:literal, $content_type:expr) => {
+        || async {
+            (
+                StatusCode::OK,
+                [(axum::http::header::CONTENT_TYPE, $content_type)],
+                include_bytes!(concat!("../static/", $path)),
+            )
+        }
+    };
+}
+
 #[tokio::main]
 async fn main() {
-    let app = Router::new().route("/api/v1/report", post(generate_report));
+    let app = Router::new()
+        .route("/", get(serve_static!("index.html", "text/html")))
+        .route("/api/v1/report", post(generate_report));
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:8000")
         .await
