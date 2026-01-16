@@ -23,7 +23,7 @@ impl Report {
     pub fn filename(&self) -> String {
         format!(
             "Отчет.ТК.ФВиС.{}.{}.xlsx",
-            self.data.id,
+            self.data.student_id,
             self.generation_time.format("%Y-%m-%d"),
         )
     }
@@ -62,7 +62,7 @@ impl Report {
             .set_style(Styles::header());
         sheet
             .get_cell_mut("B4")
-            .set_value(&self.data.id)
+            .set_value(&self.data.student_id)
             .set_style(Styles::header());
 
         sheet.add_merge_cells("C3:F3");
@@ -104,7 +104,7 @@ impl Report {
             .set_style(Styles::header());
         sheet
             .get_cell_mut("K4")
-            .set_value("С.В. Иванов")
+            .set_value(&self.data.teacher)
             .set_style(Styles::header());
     }
 

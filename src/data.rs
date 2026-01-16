@@ -8,7 +8,8 @@ use crate::lichess;
 #[derive(Deserialize)]
 pub struct Data {
     pub name: String,
-    pub id: String,
+    pub student_id: String,
+    pub teacher: String,
     pub group: String,
     pub tournament: String,
     pub opponent: String,
