@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 anyhow = "1.0.100"
 axum = "0.8.8"
+chrono = "0.4.43"
 pgnparse = "0.1.15"
 reqwest = "0.13.1"
 serde = { version = "1.0.228", features = ["derive"] }
