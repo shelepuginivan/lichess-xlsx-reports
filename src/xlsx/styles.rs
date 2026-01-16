@@ -1,4 +1,3 @@
-
 use umya_spreadsheet::{
     Alignment, Border, Color, Font, HorizontalAlignmentValues, Style, VerticalAlignmentValues,
 };
