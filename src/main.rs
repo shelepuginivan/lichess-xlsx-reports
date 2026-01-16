@@ -1,7 +1,11 @@
 use axum::{Json, Router, routing::post};
+use chrono::Local;
 use reqwest::StatusCode;
 
-use crate::{data::Data, xlsx::XlsxResponse};
+use crate::{
+    data::Data,
+    xlsx::{Formatter, XlsxResponse},
+};
 
 mod data;
 mod lichess;
@@ -19,5 +23,16 @@ async fn main() {
 }
 
 async fn generate_report(Json(data): Json<Data>) -> Result<XlsxResponse, StatusCode> {
-    Err(StatusCode::NOT_IMPLEMENTED)
+    let report = match Formatter::new().format_data(&data).await {
+        Ok(r) => r,
+        Err(_) => return Err(StatusCode::INTERNAL_SERVER_ERROR),
+    };
+
+    let filename = format!(
+        "Отчет.ТК.ФВиС.{}.{}.xlsx",
+        data.id,
+        Local::now().format("%Y-%m-%d").to_string(),
+    );
+
+    Ok(XlsxResponse::new(filename, report))
 }

@@ -5,7 +5,6 @@ use crate::{
 
 use chrono::Local;
 use pgnparse::parser::PgnInfo;
-use std::path::Path;
 use umya_spreadsheet::{Spreadsheet, Worksheet};
 
 const DEFAULT_SHEET: &str = "Sheet1";
@@ -17,7 +16,7 @@ impl Formatter {
         Formatter {}
     }
 
-    pub async fn format_data(&self, data: &Data) -> anyhow::Result<()> {
+    pub async fn format_data(&self, data: &Data) -> anyhow::Result<Spreadsheet> {
         let mut book = umya_spreadsheet::new_file();
         let sheet = book.get_sheet_by_name_mut(DEFAULT_SHEET).unwrap();
 
@@ -25,7 +24,8 @@ impl Formatter {
         self.write_info(sheet, data);
         self.write_game_info(sheet, data);
         self.write_games(sheet, data).await?;
-        self.write_xlsx_file(data, &book)
+
+        Ok(book)
     }
 
     fn write_title(&self, sheet: &mut Worksheet) {
@@ -260,18 +260,5 @@ impl Formatter {
         sheet
             .get_cell_mut((base_col + 5, base_row + height + 2))
             .set_value(result_black);
-    }
-
-    fn write_xlsx_file(&self, data: &Data, book: &Spreadsheet) -> anyhow::Result<()> {
-        let filename = format!(
-            "Отчет.ТК.ФВиС.{}.{}.xlsx",
-            data.id,
-            Local::now().format("%Y-%m-%d").to_string(),
-        );
-        let path = Path::new(&filename);
-
-        umya_spreadsheet::writer::xlsx::write(book, path)?;
-
-        Ok(())
     }
 }
