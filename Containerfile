@@ -1,9 +1,17 @@
 FROM rust:1.91 as builder
+
 WORKDIR /app
-COPY . .
+
+COPY src src
+COPY static static
+COPY Cargo.toml Cargo.toml
+COPY Cargo.lock Cargo.lock
+
 RUN cargo build --release
 
+
 FROM debian:trixie-slim AS app
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
  && rm -rf /var/lib/apt/lists/*
