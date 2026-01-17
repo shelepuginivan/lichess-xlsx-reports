@@ -306,7 +306,6 @@ dependencies = [
  "pgnparse",
  "reqwest",
  "serde",
- "serde_json",
  "tokio",
  "umya-spreadsheet",
 ]
