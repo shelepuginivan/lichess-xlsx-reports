@@ -1,8 +1,13 @@
+use std::env;
+use std::time::Duration;
+
 use axum::{
     Json, Router,
     routing::{get, post},
 };
 use reqwest::StatusCode;
+use tokio::signal;
+use tower_http::timeout::TimeoutLayer;
 
 mod data;
 mod lichess;
@@ -33,13 +38,19 @@ async fn main() {
             "/favicon.png",
             get(serve_static!("favicon.png", "image/png")),
         )
-        .route("/api/v1/report", post(generate_report));
+        .route("/api/v1/report", post(generate_report))
+        .layer(TimeoutLayer::with_status_code(
+            StatusCode::REQUEST_TIMEOUT,
+            Duration::from_secs(15),
+        ));
 
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:8000")
+    let addr = env::var("LISTEN_ADDR").unwrap_or(String::from("0.0.0.0:8000"));
+    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+
+    axum::serve(listener, app)
+        .with_graceful_shutdown(shutdown_signal())
         .await
         .unwrap();
-
-    axum::serve(listener, app).await.unwrap();
 }
 
 async fn generate_report(Json(data): Json<Data>) -> Result<XlsxResponse, (StatusCode, String)> {
@@ -54,4 +65,24 @@ async fn generate_report(Json(data): Json<Data>) -> Result<XlsxResponse, (Status
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
 
     Ok(XlsxResponse::new(report.filename(), spreadsheet))
+}
+
+async fn shutdown_signal() {
+    let ctrl_c = async {
+        signal::ctrl_c()
+            .await
+            .expect("failed to install Ctrl+C handler");
+    };
+
+    let terminate = async {
+        signal::unix::signal(signal::unix::SignalKind::terminate())
+            .expect("failed to install signal handler")
+            .recv()
+            .await;
+    };
+
+    tokio::select! {
+        _ = ctrl_c => {},
+        _ = terminate => {},
+    }
 }
