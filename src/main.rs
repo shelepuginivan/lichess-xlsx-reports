@@ -4,14 +4,12 @@ use axum::{
 };
 use reqwest::StatusCode;
 
-use crate::{
-    data::Data,
-    xlsx::{Report, XlsxResponse},
-};
-
 mod data;
 mod lichess;
 mod xlsx;
+
+use crate::data::Data;
+use crate::xlsx::{Report, XlsxResponse};
 
 macro_rules! serve_static {
     ($path:literal, $content_type:expr) => {
@@ -31,6 +29,10 @@ async fn main() {
         .route("/", get(serve_static!("index.html", "text/html")))
         .route("/style.css", get(serve_static!("style.css", "text/css")))
         .route("/app.js", get(serve_static!("app.js", "text/javascript")))
+        .route(
+            "/favicon.png",
+            get(serve_static!("favicon.png", "image/png")),
+        )
         .route("/api/v1/report", post(generate_report));
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:8000")
