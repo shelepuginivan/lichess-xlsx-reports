@@ -5,7 +5,6 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use umya_spreadsheet::Spreadsheet;
-use urlencoding::encode;
 
 pub struct XlsxResponse {
     filename: String,
@@ -38,7 +37,7 @@ impl IntoResponse for XlsxResponse {
                         ),
                         (
                             header::CONTENT_DISPOSITION,
-                            &format!("attachment; filename*=UTF-8''{}", encode(&self.filename)),
+                            &format!(r#"attachment; filename="{}""#, &self.filename),
                         ),
                     ],
                     bytes,

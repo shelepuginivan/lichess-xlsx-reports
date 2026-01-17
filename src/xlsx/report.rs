@@ -22,7 +22,7 @@ impl Report {
 
     pub fn filename(&self) -> String {
         format!(
-            "Отчет.ТК.ФВиС.{}.{}.xlsx",
+            "Otchet_TK_FViS_{}_{}.xlsx",
             self.data.student.id,
             self.generation_time.format("%Y-%m-%d"),
         )
