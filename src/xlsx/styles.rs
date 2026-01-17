@@ -2,42 +2,36 @@ use umya_spreadsheet::{
     Alignment, Border, Color, Font, HorizontalAlignmentValues, Style, VerticalAlignmentValues,
 };
 
-pub struct Styles {}
+pub struct Styles {
+    accent_color: String,
+    font_name: String,
+}
+
+impl Default for Styles {
+    fn default() -> Self {
+        Self {
+            accent_color: String::from("ff2e75b6"),
+            font_name: String::from("Calibri"),
+        }
+    }
+}
 
 impl Styles {
-    pub fn title() -> Style {
-        let font = Font::default()
-            .set_name("Calibri")
-            .set_size(11f64)
-            .set_bold(true)
-            .to_owned();
-
+    pub fn title(&self) -> Style {
         Style::default()
-            .set_font(font)
-            .set_alignment(Self::align_center())
+            .set_font(self.font_bold().set_size(14_f64).to_owned())
+            .set_alignment(self.align_center())
             .to_owned()
     }
 
-    pub fn header() -> Style {
-        let font = Font::default()
-            .set_name("Calibri")
-            .set_size(11f64)
-            .set_bold(true)
-            .to_owned();
-
+    pub fn header(&self) -> Style {
         Style::default()
-            .set_font(font)
-            .set_alignment(Self::align_center())
+            .set_font(self.font_bold())
+            .set_alignment(self.align_center())
             .to_owned()
     }
 
-    pub fn info_table() -> Style {
-        let font = Font::default()
-            .set_name("Calibri")
-            .set_size(11f64)
-            .set_bold(true)
-            .to_owned();
-
+    pub fn info_table(&self) -> Style {
         let mut style = Style::default();
 
         let borders = style.get_borders_mut();
@@ -49,13 +43,13 @@ impl Styles {
         borders.get_bottom_mut().set_border_style(border);
 
         style
-            .set_font(font)
-            .set_alignment(Self::align_center())
+            .set_font(self.font_bold())
+            .set_alignment(self.align_center())
             .to_owned()
     }
 
-    pub fn game_info_table() -> Style {
-        let mut style = Self::header();
+    pub fn game_info_table(&self) -> Style {
+        let mut style = self.header();
 
         let borders = style.get_borders_mut();
         let border = Border::BORDER_THIN;
@@ -68,10 +62,10 @@ impl Styles {
         style
     }
 
-    pub fn student_name() -> Style {
+    pub fn student_name(&self) -> Style {
         let mut style = Style::default()
-            .set_alignment(Self::align_center())
-            .set_font(Font::default().set_name("Calibri").to_owned())
+            .set_alignment(self.align_center())
+            .set_font(self.font_normal().set_size(11_f64).to_owned())
             .to_owned();
 
         let borders = style.get_borders_mut();
@@ -85,7 +79,7 @@ impl Styles {
         style
     }
 
-    pub fn game_move() -> Style {
+    pub fn game_move(&self) -> Style {
         let mut style = Style::default().to_owned();
         let borders = style.get_borders_mut();
         let border = Border::BORDER_THIN;
@@ -98,7 +92,7 @@ impl Styles {
         style
     }
 
-    pub fn game_move_number() -> Style {
+    pub fn game_move_number(&self) -> Style {
         let mut style = Style::default().to_owned();
         let borders = style.get_borders_mut();
         let border = Border::BORDER_MEDIUM;
@@ -106,20 +100,19 @@ impl Styles {
         borders.get_left_mut().set_border_style(border);
         borders.get_right_mut().set_border_style(border);
 
-        let font = Font::default()
-            .set_name("Calibri")
+        let font = self
+            .font_normal()
             .set_bold(true)
-            .set_size(10_f64)
-            .set_color(Self::accent_color())
+            .set_color(self.accent_color())
             .to_owned();
 
         style
-            .set_alignment(Self::align_center().to_owned())
+            .set_alignment(self.align_center())
             .set_font(font)
             .to_owned()
     }
 
-    pub fn game_move_number_filler() -> Style {
+    pub fn game_move_number_filler(&self) -> Style {
         let mut style = Style::default().to_owned();
         let borders = style.get_borders_mut();
         let border = Border::BORDER_MEDIUM;
@@ -127,24 +120,17 @@ impl Styles {
         borders.get_left_mut().set_border_style(border);
         borders.get_right_mut().set_border_style(border);
 
-        style
-            .set_alignment(Self::align_center().to_owned())
-            .to_owned()
+        style.set_alignment(self.align_center()).to_owned()
     }
 
-    pub fn game_result() -> Style {
-        let font = Font::default()
-            .set_name("Calibri")
-            .set_size(10_f64)
-            .to_owned();
-
+    pub fn game_result(&self) -> Style {
         Style::default()
-            .set_alignment(Self::align_center().to_owned())
-            .set_font(font)
+            .set_alignment(self.align_center())
+            .set_font(self.font_normal())
             .to_owned()
     }
 
-    fn align_center() -> Alignment {
+    fn align_center(&self) -> Alignment {
         let mut center = Alignment::default();
 
         center.set_wrap_text(true);
@@ -154,7 +140,21 @@ impl Styles {
         center
     }
 
-    fn accent_color() -> Color {
-        Color::default().set_argb("ff2e75b6").to_owned()
+    fn accent_color(&self) -> Color {
+        Color::default().set_argb(&self.accent_color).to_owned()
+    }
+
+    fn font_normal(&self) -> Font {
+        Font::default()
+            .set_name(&self.font_name)
+            .set_size(10_f64)
+            .to_owned()
+    }
+
+    fn font_bold(&self) -> Font {
+        self.font_normal()
+            .set_size(11_f64)
+            .set_bold(true)
+            .to_owned()
     }
 }

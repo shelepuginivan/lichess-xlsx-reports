@@ -6,5 +6,5 @@ pub fn calc_row_count(moves_white: usize, moves_black: usize) -> u32 {
     let v = moves % 10;
     let remaining = (10 - v) % 10;
 
-    return moves + remaining;
+    moves + remaining
 }
