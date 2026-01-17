@@ -1,4 +1,4 @@
-use anyhow::bail;
+use anyhow::{anyhow, bail};
 use chrono::{DateTime, Local};
 use pgnparse::parser::PgnInfo;
 use umya_spreadsheet::{Spreadsheet, Worksheet};
@@ -110,7 +110,7 @@ impl Report {
 
     fn write_game_info(&self, sheet: &mut Worksheet) {
         let event_info = format!(
-            "Шахматный турнир №{} {}",
+            "{} {}",
             self.data.subject.tournament,
             self.generation_time.format("%d.%m.%Y"),
         );
@@ -173,18 +173,26 @@ impl Report {
     }
 
     async fn write_games(&self, sheet: &mut Worksheet) -> anyhow::Result<()> {
-        let mut game_white = self.data.load_game_as_white().await?;
-        let mut game_black = self.data.load_game_as_black().await?;
+        let (mut game_white, mut game_black) = tokio::try_join!(
+            self.data.load_game_as_white(),
+            self.data.load_game_as_black()
+        )?;
 
         let moves = calc_row_count(game_white.moves.len(), game_black.moves.len());
 
-        self.write_game(sheet, &mut game_white, moves, 0);
-        self.write_game(sheet, &mut game_black, moves, 1);
+        self.write_game(sheet, &mut game_white, moves, 0)?;
+        self.write_game(sheet, &mut game_black, moves, 1)?;
 
         Ok(())
     }
 
-    fn write_game(&self, sheet: &mut Worksheet, pgn: &mut PgnInfo, moves: u32, index: u32) {
+    fn write_game(
+        &self,
+        sheet: &mut Worksheet,
+        pgn: &mut PgnInfo,
+        moves: u32,
+        index: u32,
+    ) -> anyhow::Result<()> {
         let base_col = index * 6 + 2;
         let base_row = 14;
         let height = moves / 2 + 2;
@@ -265,8 +273,8 @@ impl Report {
 
         let result = pgn.get_header("Result");
         let mut r = result.split('-');
-        let result_white = r.next().unwrap();
-        let result_black = r.next().unwrap();
+        let result_white = r.next().ok_or(anyhow!("failed to get result"))?;
+        let result_black = r.next().ok_or(anyhow!("failed to get result"))?;
 
         sheet
             .get_cell_mut((base_col + 3, base_row + height + 2))
@@ -283,5 +291,7 @@ impl Report {
         sheet
             .get_cell_mut((base_col + 5, base_row + height + 2))
             .set_value(result_black);
+
+        Ok(())
     }
 }
