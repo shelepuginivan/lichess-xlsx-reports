@@ -40,13 +40,16 @@ async fn main() {
     axum::serve(listener, app).await.unwrap();
 }
 
-async fn generate_report(Json(data): Json<Data>) -> Result<XlsxResponse, StatusCode> {
+async fn generate_report(Json(data): Json<Data>) -> Result<XlsxResponse, (StatusCode, String)> {
+    data.validate()
+        .map_err(|e| (StatusCode::BAD_REQUEST, e.to_string()))?;
+
     let report = Report::new(data);
 
     let spreadsheet = report
         .generate_spreadsheet()
         .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
 
     Ok(XlsxResponse::new(report.filename(), spreadsheet))
 }

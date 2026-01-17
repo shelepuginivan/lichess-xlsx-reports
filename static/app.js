@@ -7,6 +7,9 @@ const inputGameOpponent = document.getElementById("input-game-opponent")
 const inputGameWhite = document.getElementById("input-game-white")
 const inputGameBlack = document.getElementById("input-game-black")
 
+const responseField = document.getElementById("response")
+const responseText = document.getElementById("response-text")
+
 function handleFormSubmission(e) {
     e.preventDefault();
 
@@ -28,6 +31,8 @@ function handleFormSubmission(e) {
         },
     }
 
+    displayResponse("Подождите...")
+
     fetch(apiURL, {
         method: "POST",
         headers: {
@@ -38,7 +43,7 @@ function handleFormSubmission(e) {
     })
         .then((response) => {
             if (!response.ok) {
-                return response.json().then((err) => Promise.reject(err));
+                return response.text().then((err) => Promise.reject(err))
             }
             return response.blob().then((blob) => ({
                 blob: blob,
@@ -46,27 +51,31 @@ function handleFormSubmission(e) {
             }));
         })
         .then(({ blob, filename }) => {
-            downloadBlob(blob, filename);
+            downloadBlob(blob, filename)
+            displayResponse("Отчет успешно сгенерирован!")
         })
-        .catch(error => {
-            console.error(error)
-        });
+        .catch(displayResponse);
 
 }
 
 function getFilenameFromHeader(header) {
     if (!header) return "report.xlsx";
-    const match = header.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-    return match && match[1] ? decodeURIComponent(match[1].replace(/['"]/g, "")) : "report.xlsx";
+    const match = header.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)
+    return match && match[1] ? decodeURIComponent(match[1].replace(/['"]/g, "")) : "report.xlsx"
 }
 
 function downloadBlob(blob, filename) {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    a.click()
+    URL.revokeObjectURL(url)
+}
+
+function displayResponse(message) {
+    responseField.hidden = false;
+    responseText.innerText = message
 }
 
 document
