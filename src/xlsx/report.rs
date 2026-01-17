@@ -1,7 +1,7 @@
 use anyhow::{anyhow, bail};
 use chrono::{DateTime, Local};
 use pgnparse::parser::PgnInfo;
-use umya_spreadsheet::{Spreadsheet, Worksheet};
+use umya_spreadsheet::{Border, Spreadsheet, Worksheet};
 
 use crate::data::Data;
 use crate::xlsx::styles::Styles;
@@ -59,53 +59,67 @@ impl Report {
         sheet
             .get_cell_mut("B3")
             .set_value("Студ. билет")
-            .set_style(Styles::header());
+            .set_style(Styles::info_table());
         sheet
             .get_cell_mut("B4")
             .set_value(&self.data.student.id)
-            .set_style(Styles::header());
+            .set_style(Styles::info_table());
 
         sheet.add_merge_cells("C3:F3");
         sheet.add_merge_cells("C4:F4");
         sheet
             .get_cell_mut("C3")
             .set_value("ФИО")
-            .set_style(Styles::header());
+            .set_style(Styles::info_table());
         sheet
             .get_cell_mut("C4")
             .set_value(&self.data.student.name)
-            .set_style(Styles::header());
+            .set_style(Styles::info_table());
 
         sheet
             .get_cell_mut("G3")
             .set_value("Группа")
-            .set_style(Styles::header());
+            .set_style(Styles::info_table());
         sheet
             .get_cell_mut("G4")
             .set_value(&self.data.student.group)
-            .set_style(Styles::header());
+            .set_style(Styles::info_table());
 
         sheet.add_merge_cells("H3:J3");
         sheet.add_merge_cells("H4:J4");
         sheet
             .get_cell_mut("H3")
             .set_value("Спортивное отделение")
-            .set_style(Styles::header());
+            .set_style(Styles::info_table());
         sheet
             .get_cell_mut("H4")
             .set_value("Шахматы")
-            .set_style(Styles::header());
+            .set_style(Styles::info_table());
 
         sheet.add_merge_cells("K3:M3");
         sheet.add_merge_cells("K4:M4");
         sheet
             .get_cell_mut("K3")
             .set_value("Преподаватель")
-            .set_style(Styles::header());
+            .set_style(Styles::info_table());
         sheet
             .get_cell_mut("K4")
             .set_value(&self.data.subject.teacher)
-            .set_style(Styles::header());
+            .set_style(Styles::info_table());
+
+        // Fix right borders of the subject info table due to K3:M3 and K4:M4 being merged.
+        sheet
+            .get_cell_mut("M3")
+            .get_style_mut()
+            .get_borders_mut()
+            .get_right_mut()
+            .set_border_style(Border::BORDER_MEDIUM);
+        sheet
+            .get_cell_mut("M4")
+            .get_style_mut()
+            .get_borders_mut()
+            .get_right_mut()
+            .set_border_style(Border::BORDER_MEDIUM);
     }
 
     fn write_game_info(&self, sheet: &mut Worksheet) {
@@ -129,20 +143,22 @@ impl Report {
         sheet
             .get_cell_mut("B9")
             .set_value("Белые")
-            .set_style(Styles::header());
+            .set_style(Styles::game_info_table());
         sheet
             .get_cell_mut("B10")
             .set_value("Черные")
-            .set_style(Styles::header());
+            .set_style(Styles::game_info_table());
 
         sheet.add_merge_cells("C9:G9");
         sheet.add_merge_cells("C10:G10");
         sheet
             .get_cell_mut("C9")
-            .set_value(self.data.student.short_name());
+            .set_value(self.data.student.short_name())
+            .set_style(Styles::student_name());
         sheet
             .get_cell_mut("C10")
-            .set_value(&self.data.game.opponent);
+            .set_value(&self.data.game.opponent)
+            .set_style(Styles::student_name());
 
         sheet.add_merge_cells("H7:M7");
         sheet.add_merge_cells("H8:M8");
@@ -158,18 +174,36 @@ impl Report {
         sheet
             .get_cell_mut("H9")
             .set_value("Белые")
-            .set_style(Styles::header());
+            .set_style(Styles::game_info_table());
         sheet
             .get_cell_mut("H10")
             .set_value("Черные")
-            .set_style(Styles::header());
+            .set_style(Styles::game_info_table());
 
         sheet.add_merge_cells("I9:M9");
         sheet.add_merge_cells("I10:M10");
-        sheet.get_cell_mut("I9").set_value(&self.data.game.opponent);
+        sheet
+            .get_cell_mut("I9")
+            .set_value(&self.data.game.opponent)
+            .set_style(Styles::student_name());
         sheet
             .get_cell_mut("I10")
-            .set_value(self.data.student.short_name());
+            .set_value(self.data.student.short_name())
+            .set_style(Styles::student_name());
+
+        // Fix right borders of the game info table due to I9:M9 and I10:M10 being merged.
+        sheet
+            .get_cell_mut("M9")
+            .get_style_mut()
+            .get_borders_mut()
+            .get_right_mut()
+            .set_border_style(Border::BORDER_THIN);
+        sheet
+            .get_cell_mut("M10")
+            .get_style_mut()
+            .get_borders_mut()
+            .get_right_mut()
+            .set_border_style(Border::BORDER_THIN);
     }
 
     async fn write_games(&self, sheet: &mut Worksheet) -> anyhow::Result<()> {
@@ -209,7 +243,8 @@ impl Report {
 
             sheet
                 .get_cell_mut((base_col, i))
-                .set_value_number(move_index + 1);
+                .set_value_number(move_index + 1)
+                .set_style(Styles::game_move_number());
 
             let white_move_index = (2 * move_index) as usize;
             let white_move = if white_move_index < pgn.moves.len() {
@@ -244,7 +279,8 @@ impl Report {
 
             sheet
                 .get_cell_mut((base_col + 3, i))
-                .set_value_number(i - base_row + 1 + move_offset);
+                .set_value_number(i - base_row + 1 + move_offset)
+                .set_style(Styles::game_move_number());
 
             let white_move_index = (2 * move_index) as usize;
             let white_move = if white_move_index < pgn.moves.len() {
@@ -278,19 +314,60 @@ impl Report {
 
         sheet
             .get_cell_mut((base_col + 3, base_row + height + 2))
-            .set_value("Итог:");
+            .set_value("Итог:")
+            .set_style(Styles::game_result());
         sheet
             .get_cell_mut((base_col + 4, base_row + height + 1))
-            .set_value("Белые");
+            .set_value("Белые")
+            .set_style(Styles::game_result());
         sheet
             .get_cell_mut((base_col + 4, base_row + height + 2))
-            .set_value(result_white);
+            .set_value(result_white)
+            .set_style(Styles::game_result());
         sheet
             .get_cell_mut((base_col + 5, base_row + height + 1))
-            .set_value("Черные");
+            .set_value("Черные")
+            .set_style(Styles::game_result());
         sheet
             .get_cell_mut((base_col + 5, base_row + height + 2))
-            .set_value(result_black);
+            .set_value(result_black)
+            .set_style(Styles::game_result());
+
+        for i in 0..4 {
+            sheet
+                .get_cell_mut((base_col + 3, base_row + height + i))
+                .set_style(Styles::game_move_number_filler());
+        }
+
+        // Draw borders around the game moves area. The left border is always present as it is
+        // inherited from the move number style.
+
+        // Top and bottom border of game moves area.
+        for i in 0..=5 {
+            sheet
+                .get_cell_mut((base_col + i, base_row))
+                .get_style_mut()
+                .get_borders_mut()
+                .get_top_mut()
+                .set_border_style(Border::BORDER_MEDIUM);
+
+            sheet
+                .get_cell_mut((base_col + i, base_row + height + 4))
+                .get_style_mut()
+                .get_borders_mut()
+                .get_top_mut()
+                .set_border_style(Border::BORDER_MEDIUM);
+        }
+
+        // Right border of game moves area.
+        for row in 0..height + 4 {
+            sheet
+                .get_cell_mut((base_col + 5, base_row + row))
+                .get_style_mut()
+                .get_borders_mut()
+                .get_right_mut()
+                .set_border_style(Border::BORDER_MEDIUM);
+        }
 
         Ok(())
     }
