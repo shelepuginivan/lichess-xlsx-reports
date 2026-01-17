@@ -56,6 +56,7 @@ function handleFormSubmission(e) {
         })
         .catch(displayResponse);
 
+    saveCommonData()
 }
 
 function getFilenameFromHeader(header) {
@@ -78,6 +79,24 @@ function displayResponse(message) {
     responseText.innerText = message
 }
 
+function saveCommonData() {
+    localStorage.setItem("student.name", inputStudentName.value)
+    localStorage.setItem("student.group", inputStudentGroup.value)
+    localStorage.setItem("student.id", inputStudentId.value)
+    localStorage.setItem("subject.tournament", inputSubjectTournament.value)
+    localStorage.setItem("subject.teacher", inputSubjectTeacher.value)
+}
+
+function loadCommonData() {
+    inputStudentName.value = localStorage.getItem("student.name") || ""
+    inputStudentGroup.value = localStorage.getItem("student.group") || ""
+    inputStudentId.value = localStorage.getItem("student.id") || ""
+    inputSubjectTournament.value = localStorage.getItem("subject.tournament") || ""
+    inputSubjectTeacher.value = localStorage.getItem("subject.teacher") || ""
+}
+
 document
     .getElementById("game-info-form")
     .addEventListener("submit", handleFormSubmission)
+
+loadCommonData()
